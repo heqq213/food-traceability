@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>天庭法宝仙丹溯源鉴定台</title>
+  <style>
+    body { 
+      margin: 0; 
+      font-family: "PingFang SC", "Microsoft YaHei", serif; 
+      background: #fdfaf2; 
+      color: #332b2b; 
+      background-image: radial-gradient(#e5e0d0 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .container { max-width: 760px; margin: 0 auto; padding: 20px; }
+    .header { 
+      background: #8b1a1a; 
+      color: #f0c040; 
+      padding: 30px; 
+      border-radius: 14px; 
+      text-align: center; 
+      border: 3px double #f0c040;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .header h1 { margin: 0; font-size: 28px; letter-spacing: 4px; }
+    .card { 
+      background: #fff; 
+      margin-top: 16px; 
+      padding: 24px; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border-left: 6px solid #8b1a1a;
+    }
+    .status { 
+      display: inline-block; 
+      padding: 6px 15px; 
+      border-radius: 4px; 
+      background: #fff8e1; 
+      color: #b8860b; 
+      font-weight: bold; 
+      border: 1px solid #f0c040;
+    }
+    h3 { color: #8b1a1a; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+    .timeline { list-style: none; padding-left: 20px; border-left: 2px dashed #d4b106; }
+    .timeline li { margin: 12px 0; position: relative; }
+    .timeline li::before { content: "✦"; position: absolute; left: -28px; color: #d4b106; }
+    .conclusion-box { background: #fef9e7; padding: 15px; border-radius: 8px; font-style: italic; }
+    .error { color: #b91c1c; text-align: center; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>✦ 天庭法宝仙丹鉴定台 ✦</h1>
+      <p>奉太上感应，查验三界灵物真伪</p>
+    </div>
+    <div id="app" class="card">正在开启乾坤镜，检索灵物信息……</div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get('id');
+    const app = document.getElementById('app');
+
+    async function loadProduct() {
+      if (!productId) {
+        app.innerHTML = '<p class="error">【敕令】未检测到法宝编号，请重新扫码。</p>';
+        return;
+      }
+      const response = await fetch('products.json'); [cite: 53]
+      const products = await response.json(); [cite: 53]
+      const product = products.find(p => p.id === productId); [cite: 53]
+      
+      if (!product) {
+        app.innerHTML = '<p class="error">【警告】乾坤镜未发现此灵物记录！</p>';
+        return;
+      }
+      
+      app.innerHTML = `
+        <h2 style="margin-top:0;">${product.name}</h2>
+        <p><span class="status">✦ 灵气鉴定：${product.testResult} ✦</span></p>
+        <h3>壹 · 灵物档案</h3>
+        <p><b>法宝编号：</b>${product.id}</p>
+        <p><b>地支批次：</b>${product.batch}</p>
+        <p><b>产地/洞府：</b>${product.origin}</p>
+        <p><b>开炉日期：</b>${product.date}</p>
+        <p><b>保存期限：</b>${product.shelfLife}</p>
+        <h3>贰 · 历劫过程</h3>
+        <ul class="timeline">${product.logistics.map(item => `<li>${item}</li>`).join('')}</ul>
+        <h3>叁 · 鉴定结论</h3>
+        <div class="conclusion-box">“ ${product.conclusion} ”</div>
+      `;
+    }
+    loadProduct().catch(() => { app.innerHTML = '<p class="error">灵力中断，请检查 products.json 文件。</p>'; });
+  </script>
+</body>
+</html>
